@@ -22,7 +22,61 @@ fetch('/api/products/')
                              `
             cards.appendChild(div)
         });
+
+        const filters = document.getElementById('toFilter')
+        filters.innerHTML= ""
+        products.forEach(prod => {
+            const div = document.createElement('div')
+            div.classList.add('d-flex', 'mx-3')
+            div.innerHTML += `
+                             <button class="btn btn-success" id=${prod.id}b>${prod.name}</button>
+                             `
+            filters.appendChild(div)
+        })
+        const filterGetId = (products) => {
+            products.forEach((prod) => {
+
+                const button = document.getElementById(`${prod.id}b`)
+                button.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    console.log(prod.id);
+                    filterProds(prod.id)
+                })
+
+            });
+        }
+        filterGetId(products)
      })
+
+
+
+const filterProds = (id) =>{
+    fetch(`/api/products/${id}`)
+    .then(res => res.json())
+    .then(products => {
+        
+        const cards = document.getElementById('cards')
+        cards.innerHTML = ""
+        products.forEach(prod => {
+            const div = document.createElement('div')
+            div.classList.add('d-flex')
+            div.innerHTML += `
+                            <div class="card m-1" style="width: 18rem;">
+                                    <img src="" class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h5 class="card-title">${prod.name} id: ${prod.id}</h5>
+                                    <p class="card-text">Descripción:${prod.desc}</p>
+                                    <p class="card-text">Stock: ${prod.stock}</p>
+                                    <p class="card-text">Código${prod.code}</p>
+                                    <p class="card-text">Precio$${prod.price}</p>
+                                    <a id="${prod.id}" class="btn btn-primary">Agrega al Carrito</a>
+                                </div>
+                            </div>
+                             `
+            cards.appendChild(div)
+        });
+     })
+}
 
 
 const btnModify = document.getElementById('btnModify')
