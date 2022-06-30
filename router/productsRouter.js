@@ -13,7 +13,7 @@ router.get(`/products/:id?`, async (req, res) =>{
       res.json(data) 
   }else{
      const dataId = await dataBase.getById(myId)
-     res.json([dataId]) 
+     res.json(dataId) 
   }
 })
 

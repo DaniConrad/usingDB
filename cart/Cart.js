@@ -1,4 +1,7 @@
 const fs = require('fs')
+const options = require('../db/options/db')
+const knex = require('knex')(options)
+
 
 class Cart{
     constructor(file){
@@ -26,12 +29,11 @@ class Cart{
         }
     }
 
-    async createCart(id){
-        await this.init()
-        const timestamp = Date.now()
-        const newCart = {"id": id, timestamp, "products":[]}
-        this.cart.push(newCart)
-        await fs.promises.writeFile(this.file, JSON.stringify(this.cart))
+    async createCart(){
+        let timestamp = Date.now()
+        await knex('cart').insert({timestamp})
+                .then(() => console.log('data inserted'))
+                .catch(err => console.log(err))
     }
 
     async saveCart(obj, id) {
@@ -53,13 +55,13 @@ class Cart{
     }
 
     async deleteCart(id){
-        try {
-            await this.init()
-            const filter = this.cart.filter(cart => cart.id != id)
-            await fs.promises.writeFile(this.file, JSON.stringify(filter))
-        } catch (error) {
-            console.log('hay error', error)
-        }
+        console.log(id);
+        await knex.from('cart')
+                .where('id', '=', id)
+                .del()
+            
+                .then(() => console.log('data deleted'))
+                .catch(err => console.log(err))
     }
 
     async deleteProd(cartId, prodId){

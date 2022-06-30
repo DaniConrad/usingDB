@@ -1,4 +1,5 @@
-const fs = require('fs')
+const options = require('./db/options/db')
+const knex = require('knex')(options)
 
     class Container{
     constructor(object = {}){
@@ -6,79 +7,70 @@ const fs = require('fs')
      this.price = object?.price || ''
      this.db = [];
     }
-
-    async init() {
-        this.readJson = await this.readData()
-   }
-
-    async readData() {
-            try {
-                let objectsJSON =  await fs.promises.readFile('./data.json', 'utf-8')
-                return JSON.parse(objectsJSON) 
-            }
-            catch (err) {
-                console.log(err)
-            }
-    }
     
     async saveFile(obj){
-        let db = [];
-        await this.init()
-        db.push(...this.readJson, obj)
-        fs.writeFileSync('./data.json', JSON.stringify(db))
+        knex('ecommercedb').insert(obj)
+            .then(() => console.log('data inserted'))
+            .catch(err => console.log(err))
+            // .finally(() => knex.destroy())
         }
 
     async getById(myId){
-        await this.init()
-        this.readJson === '' ? {error: 'Producto no encontrado'} : ''
-        
-        const matchId = this.readJson.find((product)=> product.id === myId)
-        return matchId == undefined ? {error: 'Producto no encontrado'} : matchId
+        let item
+        await knex.from('ecommercedb').select('*')
+            .then( rows => {
+               item = rows.find(prod => prod.id === myId);
+            })
+            .catch(err => console.log(err))
+            // .finally(() => knex.destroy())
+        return item
         
     }
 
     async deleteById(myId){
-            await this.init()
-            const filter = this.readJson.filter(prod => prod.id != myId)
-            filter == undefined ? {error: 'Producto no encontrado'} : await this.reloadProds(filter)
-        }
-    
-    async reloadProds(filter){
-            this.db = []
-            this.db.push(...filter)
-            await fs.promises.writeFile('./data.json', JSON.stringify(this.db))
+      await knex.from('ecommercedb')
+                .where('id', '=', myId)
+                .del()
+            
+                .then(() => console.log('data deleted'))
+                .catch(err => console.log(err))
+                // .finally(() => knex.destroy())
         }
         
 
     async editById(myId, name, price, desc, img, stock, code){ 
-        await this.init()
-        const matchId = this.readJson.filter((product)=> product.id != myId)
-        this.db = []
-        this.db.push(...matchId)
-        fs.writeFileSync('./data.json', JSON.stringify(this.db))
-        const timestamp = Date.now()
-        const data = {
-             id: myId,
-             name: name,
-             price: price,
-             desc: desc,
-             img: img,
-             stock: stock,
-             code: code,
-             timestamp: timestamp
-        }
+       const timestamp = Date.now()
+       const obj = {
+            id: myId,
+            name,
+            price,
+            desc,
+            img,
+            stock,
+            code,
+            timestamp
 
-        this.db.push(data)
-        fs.writeFileSync('./data.json', JSON.stringify(this.db))
-    }
+       }
+       await knex.from('ecommercedb')
+            .where('id', '=', myId)
+            .update(obj)
 
-    deleteAll(){
-        fs.writeFileSync('./data.json    ', JSON.stringify(this.db))
+            .then(() => console.log('data updated'))
+            .catch(err => console.log(err))
+            // .finally(() => knex.destroy())
     }
 
     async getAll(){
-        await this.init()
-        return this.readJson
+        let db = []
+        await knex.from('ecommercedb').select('*')
+                
+                .then( rows => {
+                    db.push(...rows) 
+                })
+                .catch(err => console.log(err))
+                // .finally(() => knex.destroy())
+                return db
+                
     }
 }
 

@@ -12,9 +12,8 @@ router.get('/cart/:id/products', (req, res) => {
 })
 
 router.post('/cart', (req, res) => {
-    const id = Math.floor(Math.random() * 999999)
     dbCart.createCart(id)
-    res.send(id.toString())
+    res.send('cart created')
 })
 
 router.post('/cart/:id/products', (req, res) =>{
@@ -25,8 +24,7 @@ router.post('/cart/:id/products', (req, res) =>{
 
 router.delete(`/cart/:id`, (req, res) =>{
     const id = Number(req.params.id)
-    const dataId = dbCart.deleteCart(id)
-    res.json(dataId)
+    dbCart.deleteCart(id)
 })
 
 router.delete(`/cart/:id/products/:prodId`, (req, res) =>{
