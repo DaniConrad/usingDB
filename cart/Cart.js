@@ -6,82 +6,66 @@ const knex = require('knex')(options)
 class Cart{
     constructor(file){
         this.file = file
-        try {
-            console.log('Initializing...')
-            this.init()
-        }
-        catch(error) {
-            console.log(`Error Initializing ${error}`)
-        }
-    }
-
-    async init() {
-         this.cart = await this.readCart()
-    }
-
-    async readCart() {
-        try {
-            let objectsJSON = await fs.promises.readFile(this.file, 'utf-8')
-            return JSON.parse(objectsJSON) 
-        }
-        catch (err) {
-            console.log(err)
-        }
+        this.valide
     }
 
     async createCart(){
-        let timestamp = Date.now()
-        await knex('cart').insert({timestamp})
+        await knex('carts').insert({})
                 .then(() => console.log('data inserted'))
                 .catch(err => console.log(err))
     }
 
     async saveCart(obj, id) {
-        try {
-            await this.init()
-            const match = this.cart.find(cartId => cartId.id === id)
-            this.cart.push(match.products.push(obj))
-            await fs.promises.writeFile(this.file, JSON.stringify(this.cart))
+        const cart_products = {
+            "cart_id": id,
+            "prod_id":obj.id
         }
-        catch (error) {
-            console.log('hay error', error)
-        }
+        
+        await knex('carts').select('*')
+                .then(rows => this.valide =  rows.some(row => row.id === id))
+
+                .then(() => console.log('done'))
+                .catch(err => console.log(err))
+        if (this.valide === false) return {msg: "Error en existencia de carrito"}
+            
+        
+       await knex('carts_products').insert(cart_products)
+                .then(() => console.log('data inserted'))
+                .catch(err => console.log(err))
+       return {msg: 'Agregado con éxito'}
     }
 
-    getCart(id){
-        this.init()
-        const match = this.cart.find(cartId => cartId.id === id)
-        return match.products
+    async getCart(id){
+        await knex('carts_products')
+                .join('products', 'carts_products.prod_id', '=', 'products.id')
+                .where('cart_id', '=', id)
+                .then(rows => this.valide = rows)
+
+                .then(() => console.log('done'))
+                .catch(err => console.log(err))
+        return this.valide
     }
 
     async deleteCart(id){
-        console.log(id);
-        await knex.from('cart')
-                .where('id', '=', id)
+        await knex('carts_products')
+                .where('cart_id', '=', id)
                 .del()
-            
-                .then(() => console.log('data deleted'))
+
+                .then(() => console.log('cart deleted'))
                 .catch(err => console.log(err))
+        return ({msg: "Se eliminó este carrito"})
     }
 
     async deleteProd(cartId, prodId){
-        await this.init()
-        let match = this.cart.find(actualCartId => actualCartId.id === cartId)
-        const filterProd = match.products.filter(prod => prod.id != prodId)
-        await this.deleteCart(cartId)
-        await this.reloadProds(match, filterProd)
+        await knex('carts_products')
+                .where('cart_id', '=', cartId)
+                .where('prod_id', '=', prodId)
+                .del()
+
+                .then(() => console.log('data deleted'))
+                .catch(err => console.log(err))
         
     }
-
-    async reloadProds(match, filterProd){
-        match.products = []
-        match.products.push(...filterProd)
-        await this.init()
-        this.cart.push(match)
-        await fs.promises.writeFile(this.file, JSON.stringify(this.cart))
-    }
-        
-
 }
 
 module.exports = Cart

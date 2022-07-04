@@ -17,7 +17,7 @@ fetch('/api/products/')
         const addCart = (id) => {
             const matchObj = products.find(prod => prod.id === id)
             console.log(matchObj);
-            fetch(`/api/cart/220005/products`, {
+            fetch(`/api/cart/3/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json;charset=utf-8'
@@ -29,10 +29,10 @@ fetch('/api/products/')
      })
 
 
-fetch('/api/cart/220005/products')
+fetch('/api/cart/3/products')
      .then(res => res.json())
      .then(prods => {
-         
+            
          const cartView = document.getElementById('cartView')
          cartView.innerHTML = ""
          prods.forEach(prod => {
@@ -62,7 +62,7 @@ fetch('/api/cart/220005/products')
             }
             BtnDeleteOfCartId(prods)
           const deleteProdOfCart = (id) => {
-                            fetch(`/api/cart/220005/products/${id}`, {
+                            fetch(`/api/cart/3/products/${id}`, {
                                 method: 'DELETE',
                                 headers: {
                                     'Content-Type': 'application/json;charset=utf-8'

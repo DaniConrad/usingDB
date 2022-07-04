@@ -12,8 +12,7 @@ router.get(`/products/:id?`, async (req, res) =>{
      const data = await dataBase.getAll()
       res.json(data) 
   }else{
-     const dataId = await dataBase.getById(myId)
-     res.json(dataId) 
+     res.json(await dataBase.getById(myId)) 
   }
 })
 
@@ -37,7 +36,7 @@ router.post('/products', (req, res) =>{
       const id = Math.floor(Math.random() * 999999)
       const timestamp = Date.now()
       const {name, price, desc, img, stock, code} = req.body
-      dataBase.saveFile({id, name, price, desc, img, stock, code, timestamp})
+      dataBase.saveFile({name, price, desc, img, stock, code, timestamp})
   } else {
       res.json({error: '-1, route /products method post not autorized'})
   }

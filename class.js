@@ -9,7 +9,7 @@ const knex = require('knex')(options)
     }
     
     async saveFile(obj){
-        knex('ecommercedb').insert(obj)
+        knex('products').insert(obj)
             .then(() => console.log('data inserted'))
             .catch(err => console.log(err))
             // .finally(() => knex.destroy())
@@ -17,10 +17,10 @@ const knex = require('knex')(options)
 
     async getById(myId){
         let item
-        await knex.from('ecommercedb').select('*')
-            .then( rows => {
-               item = rows.find(prod => prod.id === myId);
-            })
+        await knex.from('products')
+                .where('id', '=', myId)
+                .then(res => item = res)
+
             .catch(err => console.log(err))
             // .finally(() => knex.destroy())
         return item
@@ -28,7 +28,7 @@ const knex = require('knex')(options)
     }
 
     async deleteById(myId){
-      await knex.from('ecommercedb')
+      await knex.from('products')
                 .where('id', '=', myId)
                 .del()
             
@@ -39,7 +39,6 @@ const knex = require('knex')(options)
         
 
     async editById(myId, name, price, desc, img, stock, code){ 
-       const timestamp = Date.now()
        const obj = {
             id: myId,
             name,
@@ -47,11 +46,10 @@ const knex = require('knex')(options)
             desc,
             img,
             stock,
-            code,
-            timestamp
+            code
 
        }
-       await knex.from('ecommercedb')
+       await knex.from('products')
             .where('id', '=', myId)
             .update(obj)
 
@@ -62,7 +60,7 @@ const knex = require('knex')(options)
 
     async getAll(){
         let db = []
-        await knex.from('ecommercedb').select('*')
+        await knex.from('products').select('*')
                 
                 .then( rows => {
                     db.push(...rows) 

@@ -5,32 +5,32 @@ const Cart = require('../cart/Cart.js')
 const dbCart = new Cart('./cart/cart.json')
 const router = Router();
 
-router.get('/cart/:id/products', (req, res) => {
+router.get('/cart/:id/products', async (req, res) => {
     const id = Number(req.params.id)
-    const cart = dbCart.getCart(id)
-    res.json(cart)
+    
+    res.json(await dbCart.getCart(id))
 })
 
 router.post('/cart', (req, res) => {
-    dbCart.createCart(id)
+    dbCart.createCart()
     res.send('cart created')
 })
 
-router.post('/cart/:id/products', (req, res) =>{
+router.post('/cart/:id/products', async (req, res) =>{
     const id = Number(req.params.id)
-    dbCart.saveCart(req.body, id)
-    res.send("Added")
+    
+    res.json(await dbCart.saveCart(req.body, id))
 })
 
-router.delete(`/cart/:id`, (req, res) =>{
+router.delete(`/cart/:id`, async (req, res) =>{
     const id = Number(req.params.id)
-    dbCart.deleteCart(id)
+    res.json(await dbCart.deleteCart(id))
 })
 
-router.delete(`/cart/:id/products/:prodId`, (req, res) =>{
+router.delete(`/cart/:id/products/:prodId`,  (req, res) =>{
     const cartId = Number(req.params.id)
     const prodId = Number(req.params.prodId)
-    dbCart.deleteProd(cartId, prodId)
+     dbCart.deleteProd(cartId, prodId)
     res.json("Borrado")
 
 })

@@ -39,7 +39,6 @@ fetch('/api/products/')
                 const button = document.getElementById(`${prod.id}b`)
                 button.addEventListener('click', (e) => {
                     e.preventDefault()
-                    console.log(prod.id);
                     filterProds(prod.id)
                 })
 
